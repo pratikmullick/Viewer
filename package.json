@@ -1,0 +1,28 @@
+{
+  "name": "viewer",
+  "version": "0.0.1",
+  "description": "A cross-platform Markdown-based document viewer, written using Electron framework",
+  "keywords": [
+    "electron",
+    "markdown",
+    "html",
+    "document",
+    "viewer",
+    "utility"
+  ],
+  "homepage": "https://github.com/pratikmullick/Viewer#readme",
+  "bugs": {
+    "url": "https://github.com/pratikmullick/Viewer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pratikmullick/Viewer.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Pratik Mullick",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron --trace-warnings --trace-deprecation ."
+  }
+}
