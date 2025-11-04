@@ -24,5 +24,8 @@
   "main": "main.js",
   "scripts": {
     "test": "electron --trace-warnings --trace-deprecation ."
+  },
+  "dependencies": {
+    "electron": "latest"
   }
 }

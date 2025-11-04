@@ -1,4 +1,5 @@
 const { Menu, app, dialog } = require('electron');
+const helper = require('./helper');
 
 const template = [
   {
@@ -7,13 +8,18 @@ const template = [
       {
         label: 'Open Directory',
         accelerator: 'CmdOrCtrl+O',
-        click: (menuItem, browserWindow, event) => {
+        click: async (menuItem, browserWindow, event) => {
           const { dialog } = require('electron');
-          dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+          dialog.showOpenDialog({ properties: ['openDirectory'] }).then(async result => {
             if (!result.canceled) {
               const directoryPath = result.filePaths[0];
-              console.log(directoryPath);
               browserWindow.webContents.send('directory-opened', directoryPath);
+              try {
+                const dirContent = await helper.listFoldersAndFilesRecursive(directoryPath);
+                browserWindow.webContents.send('dir-content', dirContent);
+              } catch (error) {
+                console.error("Error retrieving directory structure:", error);
+              }
             }
           });
         }
@@ -36,7 +42,7 @@ const template = [
           dialog.showMessageBox({
             type: 'info',
             title: 'About',
-            message: 'Document Viewer.\nCopyright 2025 Pratik Mullick.\nAll Rights Reserved.',
+            message: 'Document Viewer.\nCopyright 2025\nAll Rights Reserved.',
             buttons: ['OK'],
           });
         }
