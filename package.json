@@ -26,6 +26,7 @@
     "test": "electron --trace-warnings --trace-deprecation ."
   },
   "dependencies": {
-    "electron": "latest"
+    "electron": "latest",
+    "remarkable": "latest"
   }
 }

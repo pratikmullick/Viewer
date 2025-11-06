@@ -11,6 +11,9 @@ cert/
 
 ## Editor
 
+# Ignore VSCode directory
+.vscode/
+
 # Ignore swap files (made by GVim)
 *.swp
 

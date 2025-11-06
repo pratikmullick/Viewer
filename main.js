@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const menuTemplate = require('./menu');
 const path = require('path');
+require('./loader');
 
 let mainWindow;
 
@@ -21,20 +22,6 @@ function createWindow() {
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
 
-  /*
-  mainWindow.webContents.on('did-finish-load', () => {
-    // Listen for the 'directory-opened' event from the menu
-    mainWindow.webContents.on('directory-opened', (event, directoryPath) => {
-      mainWindow.webContents.send('directory-opened', directoryPath);
-    });
-  });
-
-  mainWindow.webContents.on('ipc-message', (event, channel, data) => {
-    if (channel === 'myChannelResponse') {
-        console.log('Received from renderer:', data)
-    }
-  });
-  */
 }
 
 app.whenReady().then(() => {

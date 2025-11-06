@@ -15,12 +15,15 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
   },
+
+  /* Kept for documentation
   invoke: (channel, data) => {
-    let validChannels = ['myInvokeChannel'];
+    let validChannels = ['readFile'];
     if (validChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, data);
     }
   }
+  */
 });
 
 /*

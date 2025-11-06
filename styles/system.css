@@ -1,0 +1,38 @@
+*   {
+    margin: 0;
+    padding: 0;
+}
+
+body    {
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    margin: 0px 5px;
+}
+
+/* Pre-written Classes */
+.window {
+    height: 95vh;
+    display: flex;
+    flex-direction: row;
+}
+
+.status-bar {
+    height: 3vh;
+    background-color: #f15bb5;
+}
+
+/* IDs represent functional units */
+#FileBrowser    {
+    background-color: #00bbf9;
+    size: 0.5em;
+    width: 25%;
+    font-size: 0.75em;
+}
+
+#Viewer {
+    background-color: #9b5de5;
+    width: 75%;
+    max-height: 100%;
+    overflow: auto;
+}
