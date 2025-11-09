@@ -1,13 +1,16 @@
-*   {
+* {
     margin: 0;
     padding: 0;
 }
 
-body    {
+body {
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
+    background-color: #f5f5f5;
+    color: #0a0a0a;
     margin: 0px 5px;
+    overflow: hidden;
 }
 
 /* Pre-written Classes */
@@ -18,21 +21,43 @@ body    {
 }
 
 .status-bar {
-    height: 3vh;
-    background-color: #f15bb5;
+    height: min-content;
+    max-height: 4vh;
+    display: flex;
+    align-items: center;
+    /*padding-top: 10px;*/
+    /*background-color: #f15bb5;*/
+}
+@media (max-width: 399px) {
+    .status-bar {
+        font-size: 0.66em;
+    }
+}
+@media (max-width: 699px) {
+    .status-bar {
+        font-size: 0.8em;
+    }
 }
 
 /* IDs represent functional units */
-#FileBrowser    {
-    background-color: #00bbf9;
-    size: 0.5em;
-    width: 25%;
+#FileBrowser {
+    width: 25dvw;
+    min-width: 200px;
     font-size: 0.75em;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #e5e5e5;
+    /*background-color: #00bbf9;*/
+}
+@media (max-width: 399px) {
+    #FileBrowser {
+        display: none;
+    }
 }
 
 #Viewer {
-    background-color: #9b5de5;
-    width: 75%;
+    width: 100%;
     max-height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    /*background-color: #9b5de5;*/
 }

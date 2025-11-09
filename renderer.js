@@ -11,7 +11,10 @@ api.receive('directory-opened', (directoryPath) => {
 });
 
 api.receive('dir-content', (dirContent) => {
-    renderDirectory(dirContent, fileBrowserDiv, "", currentRootDirectory);
+  while (fileBrowserDiv.firstChild) {
+    fileBrowserDiv.removeChild(fileBrowserDiv.firstChild);
+  }
+  renderDirectory(dirContent, fileBrowserDiv, "", currentRootDirectory);
 });
 
 api.receive('myChannelResponse', (htmlContent) => {
@@ -21,6 +24,14 @@ api.receive('myChannelResponse', (htmlContent) => {
   while (viewerDiv.firstChild) {
     viewerDiv.removeChild(viewerDiv.firstChild);
   }
+  // Intercept link clicks within viewerDiv
+  viewerDiv.addEventListener('click', (event) => {
+    if (event.target.tagName === 'A') {
+      event.preventDefault();
+      const url = event.target.href;
+      api.send('open-external-link', url);
+    }
+  });
   viewerDiv.appendChild(contentDiv);
 });
 
@@ -36,9 +47,6 @@ function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPa
 
       const folderContentDiv = document.createElement('div');
       folderContentDiv.classList.add('folder-content', 'hidden');
-      if (isRoot) {
-        folderContentDiv.classList.add('folder-content-parent');
-      }
 
       // Construct the path for the current folder.
       const newPath = currentPath ? `${currentPath}/${folder.name}` : folder.name;
