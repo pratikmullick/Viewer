@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
-const menuTemplate = require('./menu');
+const menuTemplate = require('../shared/menu');
 const path = require('path');
-require('./loader');
+const loaderOutput = require('../shared/loader');
 
 let mainWindow;
 
@@ -16,7 +16,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
   //mainWindow.webContents.openDevTools();
 
   const menu = Menu.buildFromTemplate(menuTemplate);

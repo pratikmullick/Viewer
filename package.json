@@ -21,7 +21,7 @@
   "license": "GPL-3.0-or-later",
   "author": "Pratik Mullick",
   "type": "commonjs",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "test": "electron --trace-warnings --trace-deprecation ."
   },

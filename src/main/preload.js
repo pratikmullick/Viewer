@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   send: (channel, data) => {
     // whitelist channels
-    let validChannels = ['myChannel', 'directory-opened', 'dir-content'];
+    let validChannels = ['myChannel', 'directory-opened', 'dir-content', 'open-external-link'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }

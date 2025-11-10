@@ -1,5 +1,5 @@
 const { Menu, app, dialog } = require('electron');
-const helper = require('./helper');
+const helper = require('./helper/index');
 
 const template = [
   {
@@ -39,10 +39,16 @@ const template = [
       {
         label: 'About',
         click: () => {
+          const chromiumVersion = process.versions.chrome;
           dialog.showMessageBox({
             type: 'info',
             title: 'About',
-            message: 'Document Viewer.\nCopyright 2025\nAll Rights Reserved.',
+            message: `
+            Knowledge Viewer.
+            Copyright 2025 Pratik Mullick. All Rights Reserved.
+            All fonts used are licensed under the SIL Open Font License.
+            Chromium Version: ${chromiumVersion}
+            `,
             buttons: ['OK'],
           });
         }

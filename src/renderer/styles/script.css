@@ -1,0 +1,29 @@
+.folder {
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 2px;
+}
+
+.file {
+    padding: 5px;
+    margin-bottom: 2px;
+    width: max-content;
+    cursor: pointer;
+    /*background-color: #ffa000;*/
+    font-family: monospace;
+}
+
+.file.selected {
+    background-color: #007bff;
+    color: white;
+    width: max-content;
+}
+
+.hidden {
+    display: none;
+}
+
+.folder-content {
+    margin-left: 10px;
+    margin-top: 2px;
+}

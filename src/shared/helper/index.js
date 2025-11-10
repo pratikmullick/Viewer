@@ -33,7 +33,8 @@ async function listFoldersAndFilesRecursive(directoryPath) {
         if (!matchFirstN(items[i],".git",4)) {
           // Recursive call for subdirectories
           const subDirectory = await listFoldersAndFilesRecursive(itemPath);
-          folders.push({ name: items[i], items: subDirectory });
+          if (subDirectory.folders.length > 0 || subDirectory.files.length > 0)
+            folders.push({ name: items[i], items: subDirectory });
         }
       } else if (stats[i].isFile()) {
         if (!matchFirstN(items[i],".",1) && matchLastN(items[i], ".md", 3)) {
