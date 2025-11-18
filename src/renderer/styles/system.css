@@ -1,3 +1,13 @@
+@font-face {
+    font-family: 'Mono';
+    src: url('../../assets/fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Sans';
+    src: url('../../assets/fonts/IBMPlexSans-Regular.ttf') format('truetype');
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +16,7 @@
 body {
     display: flex;
     flex-direction: column;
-    font-family: sans-serif;
+    font-family: 'Sans';
     background-color: #f5f5f5;
     color: #0a0a0a;
     margin: 0px 5px;
