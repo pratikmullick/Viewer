@@ -32,8 +32,8 @@ const template = [
         }
       },
       {
-        label: 'Refresh Directory',
-        accelerator: 'F6',
+        label: 'Refresh',
+        accelerator: 'F5',
         enabled: false,
         id: 'refresh-menu-item',
         click: async (menuItem, browserWindow, event) => {
@@ -45,6 +45,15 @@ const template = [
               console.error("Error retrieving directory structure:", error);
             }
           }
+        }
+      },
+      {
+        label: 'Reset',
+        accelerator: 'F6',
+        id: 'reset',
+        click: (menuItem, browserWindow, event) => {
+          // Send an empty message over the 'html-content' IPC channel
+          browserWindow.webContents.send('html-content', '');
         }
       },
       {
