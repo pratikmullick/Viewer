@@ -3,13 +3,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   send: (channel, data) => {
     // whitelist channels
-    let validChannels = ['myChannel', 'directory-opened', 'dir-content', 'open-external-link'];
+    let validChannels = ['file-path', 'directory-opened', 'dir-content', 'open-external-link'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
   },
   receive: (channel, func) => {
-    let validChannels = ['myChannelResponse', 'directory-opened', 'dir-content'];
+    let validChannels = ['html-content', 'directory-opened', 'dir-content'];
     if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`
       ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -75,7 +75,7 @@ file system and operating system functions).  Here's a breakdown:
     This acts like a "topic" or "subject" for the message.
   - **`data`:**  The data you want to send to the main process (can be any
     JavaScript object).
-  - **`validChannels = ['myChannel', 'directory-opened'];`**:  **Crucially,
+  - **`validChannels = ['file-path', 'directory-opened'];`**:  **Crucially,
     this is a whitelist.**  Only messages sent on the channels listed in
     `validChannels` are allowed to proceed. This prevents the renderer from
     sending arbitrary messages to the main process.

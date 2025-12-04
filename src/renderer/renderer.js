@@ -17,7 +17,7 @@ api.receive('dir-content', (dirContent) => {
   renderDirectory(dirContent, fileBrowserDiv, "", currentRootDirectory);
 });
 
-api.receive('myChannelResponse', (htmlContent) => {
+api.receive('html-content', (htmlContent) => {
   const contentDiv = document.createElement('div');
   contentDiv.classList.add('html-content');
   contentDiv.innerHTML = htmlContent;
@@ -94,7 +94,7 @@ function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPa
         }
 
         // Send the file path to the Electron backend using the 'myChannel' channel.
-        api.send('myChannel', filePath);
+        api.send('file-path', filePath);
         // Update the status display to show the selected file path.
         statusDiv.textContent = `Selected: ${filePath}`;
       });

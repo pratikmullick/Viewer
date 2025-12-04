@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron');
 const fs = require('fs');
-const path = require('path');
+
 
 let remarkable;
 
@@ -17,7 +17,7 @@ async function loadRemarkable() {
   return remarkable;
 }
 
-ipcMain.on('myChannel', async (event, filePath) => {
+ipcMain.on('file-path', async (event, filePath) => {
   try {
     const fileContent = await fs.promises.readFile(filePath, 'utf8');
     const md = await loadRemarkable();
@@ -25,13 +25,13 @@ ipcMain.on('myChannel', async (event, filePath) => {
     if (md) {
       const htmlContent = md.render(fileContent);
 
-      // Now send the HTML content back to the renderer process using 'myChannelResponse'
-      event.sender.send('myChannelResponse', htmlContent);
+      // Now send the HTML content back to the renderer process using 'html-content'
+      event.sender.send('html-content', htmlContent);
     } else {
-      event.sender.send('myChannelResponse', 'Error loading Remarkable');
+      event.sender.send('html-content', 'Error loading Remarkable');
     }
   } catch (error) {
     console.error('Error reading/processing file:', error);
-    event.sender.send('myChannelResponse', `Error: ${error.message}`);
+    event.sender.send('html-content', `Error: ${error.message}`);
   }
 });
