@@ -1,5 +1,6 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const os = require('node:os');
 
 function matchFirstN(str, pattern, n) {
   // Input validation
@@ -50,38 +51,28 @@ async function listFoldersAndFilesRecursive(directoryPath) {
   return { folders, files };
 }
 
-async function writeDocTree(directoryPath, statusFile) {
+async function getConfig(configPath = '.viewer', configFile = 'config.json')  {
+  const confPath = path.join(os.homedir(), configPath, configFile);
   try {
-    const docTree = await listFoldersAndFilesRecursive(directoryPath);
-    const filePath = path.join(directoryPath, statusFile);
-
-    //Check if directory exists, and is a directory
-    const stats = await fs.stat(directoryPath);
-    if (!stats.isDirectory()){
-      return "Error: Provided path is not a directory";
-    }
-
-    await fs.writeFile(filePath, JSON.stringify(docTree, null, 2));
-    return `Successfully wrote directory tree to ${filePath}`;
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      return `Error: Directory '${directoryPath}' does not exist`;
-    } else if (err.code === 'EACCES'){
-      return `Error: Permission denied to write to '${directoryPath}'`;
-    } else {
-      return `Error writing file: ${err.message}`;
-    }
+    const data = await fs.readFile(confPath, 'utf-8');
+    return JSON.parse(data)
+  } catch (error) {
+    console.error(`Error reading config file:`, error);
+    return null;
   }
 }
 
-async function checkDoctreeStatus(dirPath, statusFile) {
-    const filePath = path.join(dirPath, statusFile);
-    try {
-      await fs.access(filePath, fs.constants.F_OK);
-      return true;
-    } catch (err) {
-      return false;
+async function loadDirectory(directoryPath, browserWindow)  {
+  if (!directoryPath)
+    return;
+
+  browserWindow.webContents.send('directory-opened', directoryPath);
+  try {
+    const dirContent = await listFoldersAndFilesRecursive(directoryPath);
+    browserWindow.webContents.send('dir-content', dirContent);
+  } catch (error) {
+    console.error("Error retrieving directory structure: ", error);
   }
 }
 
-module.exports = { listFoldersAndFilesRecursive, checkDoctreeStatus, writeDocTree };
+module.exports = { listFoldersAndFilesRecursive, getConfig, loadDirectory };

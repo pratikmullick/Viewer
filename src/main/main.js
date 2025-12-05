@@ -2,8 +2,11 @@ const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const menuTemplate = require('../shared/menu');
 const path = require('path');
 const loaderOutput = require('../shared/loader');
+const filesystem = require('../shared/filesystem/index');
+const { ref } = require('process');
 
-let mainWindow;
+const configDir = '.viewer'
+const configFile = 'config.json'
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -24,8 +27,18 @@ function createWindow() {
 
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
+
+  try {
+    const config = await filesystem.getConfig(configDir, configFile);
+    console.log(config);
+    if (config.default_directory) {
+      await filesystem.loadDirectory(config.default_directory, mainWindow);
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

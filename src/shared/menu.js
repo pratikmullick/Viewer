@@ -1,5 +1,5 @@
 const { Menu, app, dialog } = require('electron');
-const helper = require('./helper/index');
+const filesystem = require('./filesystem/index');
 
 let directoryPath = null;
 
@@ -15,17 +15,11 @@ const template = [
           const { dialog } = require('electron');
           dialog.showOpenDialog({ properties: ['openDirectory'] }).then(async result => {
             if (!result.canceled) {
-              directoryPath = result.filePaths[0];
-              browserWindow.webContents.send('directory-opened', directoryPath);
-              try {
-                const dirContent = await helper.listFoldersAndFilesRecursive(directoryPath);
-                browserWindow.webContents.send('dir-content', dirContent);
-                const refreshMenuItem = Menu.getApplicationMenu().getMenuItemById('refresh-menu-item');
-                if (refreshMenuItem)  {
-                  refreshMenuItem.enabled = true;
-                }
-              } catch (error) {
-                console.error("Error retrieving directory structure:", error);
+              const directoryPath = result.filePaths[0];
+              await filesystem.loadDirectory(directoryPath, browserWindow);
+              const refreshMenuItem = Menu.getApplicationMenu().getMenuItemById('refresh-menu-item');
+              if (refreshMenuItem)  {
+                refreshMenuItem.enabled = true;
               }
             }
           });
