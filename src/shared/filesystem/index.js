@@ -3,7 +3,6 @@ const path = require('node:path');
 const os = require('node:os');
 
 function matchFirstN(str, pattern, n) {
-  // Input validation
   if (!str || typeof str !== 'string' || !pattern || typeof pattern !== 'string' || !Number.isInteger(n) || n < 0 || n > str.length) {
     return false;
   }
@@ -11,7 +10,6 @@ function matchFirstN(str, pattern, n) {
 }
 
 function matchLastN(str, pattern, n) {
-  // Input validation
   if (!str || typeof str !== 'string' || !pattern || typeof pattern !== 'string' || !Number.isInteger(n) || n < 0 || n > str.length) {
     return false;
   }
@@ -32,7 +30,7 @@ async function listFoldersAndFilesRecursive(directoryPath) {
       const itemPath = path.join(directoryPath, items[i]);
       if (stats[i].isDirectory()) {
         if (!matchFirstN(items[i],".git",4)) {
-          // Recursive call for subdirectories
+          /* Recursive call for subdirectories */
           const subDirectory = await listFoldersAndFilesRecursive(itemPath);
           if (subDirectory.folders.length > 0 || subDirectory.files.length > 0)
             folders.push({ name: items[i], items: subDirectory });
@@ -66,8 +64,8 @@ async function loadDirectory(directoryPath, browserWindow)  {
   if (!directoryPath)
     return;
 
-  browserWindow.webContents.send('directory-opened', directoryPath);
   try {
+    browserWindow.webContents.send('directory-opened', directoryPath);
     const dirContent = await listFoldersAndFilesRecursive(directoryPath);
     browserWindow.webContents.send('dir-content', dirContent);
   } catch (error) {

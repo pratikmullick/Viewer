@@ -4,7 +4,7 @@ const fs = require('fs');
 
 let remarkable;
 
-// Dynamically import Remarkable when needed
+/* Dynamically import Remarkable when needed */
 async function loadRemarkable() {
   if (!remarkable) {
     try {
@@ -25,7 +25,6 @@ ipcMain.on('file-path', async (event, filePath) => {
     if (md) {
       const htmlContent = md.render(fileContent);
 
-      // Now send the HTML content back to the renderer process using 'html-content'
       event.sender.send('html-content', htmlContent);
     } else {
       event.sender.send('html-content', 'Error loading Remarkable');
