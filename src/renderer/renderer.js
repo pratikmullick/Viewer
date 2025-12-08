@@ -3,8 +3,10 @@ const fileBrowserDiv = document.getElementById('FileBrowser');
 const viewerDiv = document.getElementById('Viewer');
 
 let selectedFile = null;
-let currentRootDirectory = null; /* Store root directory path */
+let currentRootDirectory = null;
+let htmlContentCallCount = 0;
 
+/* API Calls */
 api.receive('directory-opened', (directoryPath) => {
     statusDiv.textContent = `Loaded: ${directoryPath}`;
     currentRootDirectory = directoryPath;
@@ -24,21 +26,18 @@ api.receive('html-content', (htmlContent) => {
   while (viewerDiv.firstChild) {
     viewerDiv.removeChild(viewerDiv.firstChild);
   }
-  /* Intercept link clicks within viewerDiv */
-  viewerDiv.addEventListener('click', (event) => {
-    if (event.target.tagName === 'A') {
-      event.preventDefault();
-      const url = event.target.href;
-      api.send('open-external-link', url);
-    }
-  });
+  if (htmlContentCallCount)
+    viewerDiv.removeEventListener('click', linkClick);
+  viewerDiv.addEventListener('click', linkClick);
   viewerDiv.appendChild(contentDiv);
+  htmlContentCallCount++;
 });
 
 api.receive('theme-update', (theme) => {
   document.documentElement.setAttribute('system-theme', theme);
 });
 
+/* Function Definitions */
 function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPath, isRoot = true) {
   if (!dirContent) return;
 
@@ -98,5 +97,13 @@ function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPa
       });
       parentElement.appendChild(fileDiv);
     });
+  }
+}
+
+function linkClick(event) {
+  if (event.target.tagName === 'A') {
+    event.preventDefault();
+    const url = event.target.href;
+    api.send('open-external-link', url);
   }
 }
