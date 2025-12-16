@@ -12,15 +12,21 @@ const template = [
         id: 'open-directory',
         accelerator: 'CmdOrCtrl+O',
         click: async (menuItem, browserWindow, event) => {
-          const { dialog } = require('electron');
+          // const { dialog } = require('electron');
           dialog.showOpenDialog({ properties: ['openDirectory'] }).then(async result => {
-            if (!result.canceled) {
-              const directoryPath = result.filePaths[0];
-              await filesystem.loadDirectory(directoryPath, browserWindow);
-              const refreshMenuItem = Menu.getApplicationMenu().getMenuItemById('refresh-menu-item');
-              if (refreshMenuItem)  {
-                refreshMenuItem.enabled = true;
+            try {
+              if (!result.canceled) {
+                const directoryPath = result.filePaths[0];
+                browserWindow.webContents.send('directory-opened', directoryPath);
+                const dirContent = await filesystem.listFoldersAndFilesRecursive(directoryPath);
+                browserWindow.webContents.send('dir-content', dirContent);
+                const refreshMenuItem = Menu.getApplicationMenu().getMenuItemById('refresh-menu-item');
+                if (refreshMenuItem)  {
+                  refreshMenuItem.enabled = true;
+                }
               }
+            } catch (error) {
+              console.error(`Error: Unable to Load Directory from Menu: ${error}`);
             }
           });
         }

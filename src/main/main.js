@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, shell, ipcMain, nativeTheme } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain, nativeTheme, dialog } = require('electron');
 const menuTemplate = require('../shared/menu');
 const path = require('path');
 const filesystem = require('../shared/filesystem/index');
@@ -8,7 +8,9 @@ const loaderOutput = require('../shared/loader');
 const configDir = '.viewer'
 const configFile = 'config.json'
 
-function createWindow() {
+let mainWindow;
+
+async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -20,38 +22,43 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
-  //mainWindow.webContents.openDevTools();
+
+  if (process.argv.includes('--devtools')) {
+    mainWindow.webContents.openDevTools();
+  }
 
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
 
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('theme-update', nativeTheme.shouldUseDarkColors ? 'dark' : 'light');
-  });
+  return mainWindow;
+}
+
+async function loadDefaults(browserWindow) {
+  try {
+    const config = await filesystem.getConfig(configDir, configFile);
+    console.log(`Load default directory: ${config.default_directory}`);
+    if (config === null || config.default_directory === undefined)
+      throw new Error("Invalid Configuration.");
+    browserWindow.webContents.send('directory-opened', config.default_directory);
+    const dirContent = await filesystem.listFoldersAndFilesRecursive(config.default_directory);
+    mainWindow.webContents.send('dir-content', dirContent);
+  } catch (error) {
+    mainWindow.webContents.send('directory-opened', `Error: No Default Folder.`);
+  }
 }
 
 app.whenReady().then(async () => {
-  createWindow();
-  try {
-    const config = await filesystem.getConfig(configDir, configFile);
-    if (config.default_directory) {
-      await filesystem.loadDirectory(config.default_directory, mainWindow);
-    }
-  } catch (error) {
-    console.error("Error: ", error);
+  await createWindow();
+  if (mainWindow.webContents) {
+    mainWindow.webContents.send('theme-update', nativeTheme.shouldUseDarkColors ? 'dark' : 'light');
+    await loadDefaults(mainWindow);
   }
 
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-      try {
-        const config = await filesystem.getConfig(configDir, configFile);
-        if (config.default_directory) {
-          await filesystem.loadDirectory(config.default_directory, mainWindow);
-        }
-      } catch (error) {
-        console.error("Error: ", error);
-      }
+      await createWindow()
+    } else {
+      await loadDefaults(mainWindow);
     }
   });
 
@@ -72,4 +79,3 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
-

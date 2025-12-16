@@ -8,15 +8,19 @@ let htmlContentCallCount = 0;
 
 /* API Calls */
 api.receive('directory-opened', (directoryPath) => {
+  if (directoryPath.startsWith("Error:")) {
+    statusDiv.textContent = `${directoryPath}`;
+  } else {
     statusDiv.textContent = `Loaded: ${directoryPath}`;
     currentRootDirectory = directoryPath;
+  }
 });
 
 api.receive('dir-content', (dirContent) => {
   while (fileBrowserDiv.firstChild) {
     fileBrowserDiv.removeChild(fileBrowserDiv.firstChild);
   }
-  renderDirectory(dirContent, fileBrowserDiv, "", currentRootDirectory);
+  renderDirectoryAndFiles(dirContent, fileBrowserDiv, "", currentRootDirectory, true);
 });
 
 api.receive('html-content', (htmlContent) => {
@@ -38,7 +42,7 @@ api.receive('theme-update', (theme) => {
 });
 
 /* Function Definitions */
-function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPath, isRoot = true) {
+function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDirectoryPath, isRoot = true) {
   if (!dirContent) return;
 
   /* Render Folders */
@@ -46,16 +50,17 @@ function renderDirectory(dirContent, parentElement, currentPath, rootDirectoryPa
     dirContent.folders.forEach(folder => {
       const folderDiv = document.createElement('div');
       folderDiv.classList.add('folder');
-      folderDiv.textContent = folder.name;
+      folderDiv.innerHTML = folder.name;
 
       const folderContentDiv = document.createElement('div');
       folderContentDiv.classList.add('folder-content', 'hidden');
 
       const newPath = currentPath ? `${currentPath}/${folder.name}` : folder.name;
-      renderDirectory(folder.items, folderContentDiv, newPath, rootDirectoryPath, false);
+      renderDirectoryAndFiles(folder.items, folderContentDiv, newPath, rootDirectoryPath, false);
       folderDiv.addEventListener('click', (event) => {
         event.stopPropagation();
         folderContentDiv.classList.toggle('hidden');
+        folderDiv.classList.toggle('bold');
       });
 
       /* Append the folderContentDiv to the folderDiv, and folderDiv to parentElement. */

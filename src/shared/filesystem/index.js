@@ -49,28 +49,20 @@ async function listFoldersAndFilesRecursive(directoryPath) {
   return { folders, files };
 }
 
-async function getConfig(configPath = '.viewer', configFile = 'config.json')  {
+async function getConfig(configPath, configFile)  {
   const confPath = path.join(os.homedir(), configPath, configFile);
   try {
     const data = await fs.readFile(confPath, 'utf-8');
     return JSON.parse(data)
   } catch (error) {
-    console.error(`Error reading config file:`, error);
+    if (error.code === 'ENOENT')  {
+      throw new Error(`Config file not found: ${confPath}`);
+    } else {
+      console.error(`Error reading config file:`, error);
+    }
     return null;
   }
 }
 
-async function loadDirectory(directoryPath, browserWindow)  {
-  if (!directoryPath)
-    return;
 
-  try {
-    browserWindow.webContents.send('directory-opened', directoryPath);
-    const dirContent = await listFoldersAndFilesRecursive(directoryPath);
-    browserWindow.webContents.send('dir-content', dirContent);
-  } catch (error) {
-    console.error("Error retrieving directory structure: ", error);
-  }
-}
-
-module.exports = { listFoldersAndFilesRecursive, getConfig, loadDirectory };
+module.exports = { listFoldersAndFilesRecursive, getConfig };
