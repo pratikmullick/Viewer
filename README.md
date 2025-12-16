@@ -38,8 +38,8 @@ security, content and context isolation, and a consistent user experience.
       ```
 
 ### Configuration
-Knowledge Viewer can be configured to load a default directory when the
-application starts. Given below are the steps to pre-configure the application:
+Viewer can be configured to load a default directory when the application
+starts. Given below are the steps to pre-configure the application:
 1.  Create a directory named `.viewer` in your home directory
     - Windows: `%USERPROFILE%\.viewer`
     - UNIX: `~/.viewer`

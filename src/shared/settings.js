@@ -1,7 +1,8 @@
 // System Modules
-const { nativeTheme } = require('electron');
+const { nativeTheme, Menu, app } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const os = require('node:os');
 require('process');
 
 // Internal Modules
@@ -21,6 +22,22 @@ switch (process.platform)  {
     break;
 }
 
+// Standard defaults storing current state
+let currentDirectory = null;
+let currentTheme = 'system';
+
+function getCurrentDirectory()  {
+  return currentDirectory;
+}
+
+function setCurrentDirectory(dir) {
+  currentDirectory = dir || null;
+}
+
+function getCurrentTheme()  {
+  return currentTheme;
+}
+
 async function getConfig(configPath=confPath)  {
   // Loads configuration file
   try {
@@ -36,18 +53,23 @@ async function getConfig(configPath=confPath)  {
   }
 }
 
+async function applyTheme(theme, browserWindow) {
+  const allowed = ['dark', 'light', 'system'];
+  const t = allowed.includes(theme) ? theme : 'system';
+  nativeTheme.themeSource = t;
+  currentTheme = t;
+  if (browserWindow && browserWindow.webContents && !browserWindow.isDestroyed()) {
+    browserWindow.webContents.send('theme-update', t);
+  }
+}
+
 async function loadConfigTheme(browserWindow) {
   try {
     const config = await getConfig();
-    const theme = config && typeof config.theme === 'string' ? config.theme.toLowerCase() : null;
-    if (theme === 'dark' || theme === 'light') {
-      nativeTheme.themeSource = theme;
-      browserWindow.webContents.send('theme-update', theme);
-    } else {
-      nativeTheme.themeSource = 'system';
-    }
+    const theme = config && typeof config.theme === 'string' ? config.theme.toLowerCase() : 'system';
+    await applyTheme(theme, browserWindow);
   } catch (error) {
-    nativeTheme.themeSource = 'system';
+    await applyTheme('system', browserWindow);
   }
 }
 
@@ -56,12 +78,41 @@ async function loadConfigDefaultDir(browserWindow) {
     const config = await getConfig();
     if (!config || config.default_directory === undefined)
       throw new Error('Invalid Configuration.');
-    browserWindow.webContents.send('directory-opened', config.default_directory);
-    const dirContent = await listFoldersAndFilesRecursive(config.default_directory);
+    const dir = config.default_directory;
+    browserWindow.webContents.send('directory-opened', dir);
+    const dirContent = await listFoldersAndFilesRecursive(dir);
     browserWindow.webContents.send('dir-content', dirContent);
   } catch (error) {
     browserWindow.webContents.send('directory-opened', 'Error: No Default Folder.');
   }
 }
 
-module.exports = { confPath, getConfig, loadConfigTheme, loadConfigDefaultDir };
+async function setConfig(directory, theme)  {
+  const dirToSave = directory || currentDirectory;
+  const themeToSaveRaw = theme || currentTheme || 'system';
+  const allowed = ['dark', 'light', 'system'];
+  const themeToSave = allowed.includes(themeToSaveRaw) ? themeToSaveRaw : 'system';
+  if (!dirToSave || typeof dirToSave !== 'string')  {
+    throw new error('No directory selected to save.');
+  }
+  const configData = {
+    default_directory: dirToSave,
+    theme: themeToSave
+  };
+  const configDir = path.dirname(confPath);
+  await fs.mkdir(configDir, { recursive: true });
+  await fs.writeFile(confPath, JSON.stringify(configData, null, 2), 'utf-8');
+}
+
+
+module.exports = {
+  confPath,
+  getConfig,
+  loadConfigTheme,
+  loadConfigDefaultDir,
+  setConfig,
+  getCurrentDirectory,
+  setCurrentDirectory,
+  getCurrentTheme,
+  applyTheme,
+};

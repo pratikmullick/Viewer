@@ -53,3 +53,14 @@
     height: 20px;
     border: #000 solid 0px;
 }
+
+.html-content table {
+    margin: 2% 0%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1px solid #ccc;
+}

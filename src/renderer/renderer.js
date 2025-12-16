@@ -6,7 +6,7 @@ let selectedFile = null;
 let currentRootDirectory = null;
 let htmlContentCallCount = 0;
 
-/* API Calls */
+// API Calls
 api.receive('directory-opened', (directoryPath) => {
   if (directoryPath.startsWith("Error:")) {
     statusDiv.textContent = `${directoryPath}`;
@@ -41,20 +41,17 @@ api.receive('theme-update', (theme) => {
   document.documentElement.setAttribute('system-theme', theme);
 });
 
-/* Function Definitions */
+// Function Definitions
 function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDirectoryPath, isRoot = true) {
   if (!dirContent) return;
-
-  /* Render Folders */
+  // Render Folders
   if (dirContent.folders && dirContent.folders.length > 0) {
     dirContent.folders.forEach(folder => {
       const folderDiv = document.createElement('div');
       folderDiv.classList.add('folder');
       folderDiv.innerHTML = folder.name;
-
       const folderContentDiv = document.createElement('div');
       folderContentDiv.classList.add('folder-content', 'hidden');
-
       const newPath = currentPath ? `${currentPath}/${folder.name}` : folder.name;
       renderDirectoryAndFiles(folder.items, folderContentDiv, newPath, rootDirectoryPath, false);
       folderDiv.addEventListener('click', (event) => {
@@ -62,41 +59,35 @@ function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDir
         folderContentDiv.classList.toggle('hidden');
         folderDiv.classList.toggle('bold');
       });
-
-      /* Append the folderContentDiv to the folderDiv, and folderDiv to parentElement. */
+      // Append the folderContentDiv to the folderDiv, and folderDiv to parentElement
       folderDiv.appendChild(folderContentDiv);
       parentElement.appendChild(folderDiv);
     });
   }
 
-  /* Render Files */
+  // Render Files
   if (dirContent.files && dirContent.files.length > 0) {
     dirContent.files.forEach(file => {
       const fileDiv = document.createElement('div');
       fileDiv.classList.add('file');
       fileDiv.textContent = file;
-
       fileDiv.addEventListener('click', (event) => {
         event.stopPropagation();
-
-        /* Deselect previously selected file */
+        // Deselect previously selected file
         if (selectedFile) {
           selectedFile.classList.remove('selected');
         }
-
-        /* Select current file */
+        // Select current file
         fileDiv.classList.add('selected');
         selectedFile = fileDiv;
-
-        /* Construct the full file path. */
+        // Construct the full file path
         let filePath = rootDirectoryPath;
         if (currentPath)  {
           filePath = `${rootDirectoryPath}/${currentPath}/${file}`;
         } else {
           filePath = `${rootDirectoryPath}/${file}`;
         }
-
-        /* Send file path to backend. */
+        // Send file path to backend
         api.send('file-path', filePath);
         statusDiv.textContent = `Selected: ${filePath}`;
       });
@@ -106,9 +97,13 @@ function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDir
 }
 
 function linkClick(event) {
-  if (event.target.tagName === 'A') {
+  let target = event.target;
+  while (target && target.tagName !== 'A')  {
+    target = target.parentNode;
+  }
+  if (target && target.tagName === 'A') {
     event.preventDefault();
-    const url = event.target.href;
+    const url = target.href;
     api.send('open-external-link', url);
   }
 }

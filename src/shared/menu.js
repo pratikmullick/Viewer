@@ -18,6 +18,7 @@ const template = [
             try {
               if (!result.canceled) {
                 const directoryPath = result.filePaths[0];
+                settings.setCurrentDirectory(directoryPath);
                 browserWindow.webContents.send('directory-opened', directoryPath);
                 const dirContent = await filesystem.listFoldersAndFilesRecursive(directoryPath);
                 browserWindow.webContents.send('dir-content', dirContent);
@@ -40,8 +41,11 @@ const template = [
         click: async (menuItem, browserWindow, event) => {
           if (directoryPath)  {
             try {
-              const dirContent = await helper.listFoldersAndFilesRecursive(directoryPath);
-              browserWindow.webContents.send('dir-content', dirContent);
+              const directoryPath = settings.getCurrentDirectory();
+              if (directoryPath)  {
+                const dirContent = await helper.listFoldersAndFilesRecursive(directoryPath);
+                browserWindow.webContents.send('dir-content', dirContent);
+              }
             } catch (error) {
               console.error("Error retrieving directory structure:", error);
             }
@@ -75,25 +79,19 @@ const template = [
           {
             label: 'Dark Theme',
             click: async (menuItem, browserWindow, event) => {
-              const theme = 'dark';
-              nativeTheme.themeSource = theme;
-              browserWindow.webContents.send('theme-update', theme);
+              await settings.applyTheme('dark', browserWindow);
             }
           },
           {
             label: 'Light Theme',
             click: async (menuItem, browserWindow, event) => {
-              const theme = 'light';
-              nativeTheme.themeSource = theme;
-              browserWindow.webContents.send('theme-update', theme);
+              await settings.applyTheme('light', browserWindow);
             }
           },
           {
             label: 'System Theme',
             click: async (menuItem, browserWindow, event) => {
-              const theme = 'system';
-              nativeTheme.themeSource = theme;
-              browserWindow.webContents.send('theme-update', theme);
+              await settings.applyTheme('system', browserWindow);
             }
           }
         ]
@@ -110,6 +108,19 @@ const template = [
       {
         label: 'Save Current Configuration as Default',
         id: 'save-current-config',
+        click: async (menuItem, browserWindow, event) => {
+          try {
+            await settings.setConfig(settings.getCurrentDirectory(), settings.getCurrentTheme());
+            dialog.showMessageBox({
+              type: 'info',
+              title: 'Configuration Saved',
+              message: `Configuration saved to:\n${settings.confPath}`,
+              buttons: ['OK'],
+            });
+          } catch (error) {
+            dialog.showErrorBox("Error", "Failed to save configuration");
+          }
+        }
       }
     ]
   },
