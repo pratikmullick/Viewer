@@ -23,7 +23,8 @@
   "type": "commonjs",
   "main": "src/main/main.js",
   "scripts": {
-    "test": "electron --trace-warnings --trace-deprecation ."
+    "start": "electron .",
+    "debug": "electron --trace-warnings --trace-deprecation ."
   },
   "dependencies": {
     "electron": "latest",

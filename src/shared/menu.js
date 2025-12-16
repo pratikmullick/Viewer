@@ -1,7 +1,9 @@
-const { Menu, app, dialog } = require('electron');
-const filesystem = require('./filesystem/index');
+// System Modules
+const { Menu, app, dialog, nativeTheme } = require('electron');
 
-let directoryPath = null;
+// Internal Modules
+const filesystem = require('./filesystem');
+const settings = require('./settings');
 
 const template = [
   {
@@ -12,7 +14,6 @@ const template = [
         id: 'open-directory',
         accelerator: 'CmdOrCtrl+O',
         click: async (menuItem, browserWindow, event) => {
-          // const { dialog } = require('electron');
           dialog.showOpenDialog({ properties: ['openDirectory'] }).then(async result => {
             try {
               if (!result.canceled) {
@@ -52,7 +53,6 @@ const template = [
         accelerator: 'F6',
         id: 'reset',
         click: (menuItem, browserWindow, event) => {
-          // Send an empty message over the 'html-content' IPC channel
           browserWindow.webContents.send('html-content', '');
         }
       },
@@ -63,6 +63,53 @@ const template = [
         click: () => {
           app.quit();
         }
+      }
+    ]
+  },
+  {
+    label: 'Settings',
+    submenu: [
+      {
+        label: 'Theme',
+        submenu: [
+          {
+            label: 'Dark Theme',
+            click: async (menuItem, browserWindow, event) => {
+              const theme = 'dark';
+              nativeTheme.themeSource = theme;
+              browserWindow.webContents.send('theme-update', theme);
+            }
+          },
+          {
+            label: 'Light Theme',
+            click: async (menuItem, browserWindow, event) => {
+              const theme = 'light';
+              nativeTheme.themeSource = theme;
+              browserWindow.webContents.send('theme-update', theme);
+            }
+          },
+          {
+            label: 'System Theme',
+            click: async (menuItem, browserWindow, event) => {
+              const theme = 'system';
+              nativeTheme.themeSource = theme;
+              browserWindow.webContents.send('theme-update', theme);
+            }
+          }
+        ]
+      },
+      {
+        label: 'Load Default Configuration',
+        id: 'load-default-config',
+        enabled: false,
+        click: async (menuItem, browserWindow, event) => {
+          await settings.loadConfigTheme(browserWindow);
+          await settings.loadConfigDefaultDir(browserWindow);
+        }
+      },
+      {
+        label: 'Save Current Configuration as Default',
+        id: 'save-current-config',
       }
     ]
   },
@@ -78,8 +125,8 @@ const template = [
             type: 'info',
             title: 'About',
             message: `
-            Knowledge Viewer.
-            Copyright 2025 Pratik Mullick. All Rights Reserved.
+            Viewer - A Markdown-based Document Viewer.
+            Copyright 2025 Pratik Mullick. Licensed under GNU GPL v3.
             All fonts used are licensed under the SIL Open Font License.
             Chromium Version: ${chromiumVersion}
             `,
