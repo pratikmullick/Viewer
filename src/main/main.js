@@ -12,6 +12,13 @@ require('../shared/loader');
 // Start Main Window
 let mainWindow;
 
+async function applySettings()  {
+  if (!mainWindow || mainWindow.isDestroyed())
+    return;
+  await settings.loadConfigTheme(mainWindow);
+  await settings.loadConfigDefaultDir(mainWindow);
+}
+
 async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -22,29 +29,38 @@ async function createWindow() {
       nodeIntegration: false,
     },
   });
-  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
-  if (process.argv.includes('--devtools')) {
-    mainWindow.webContents.openDevTools();
-  }
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
+  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
+  mainWindow.webContents.once('did-finish-load', async () => {
+    try {
+      await applySettings();
+    } finally {
+      if (!mainWindow.isDestroyed())  {
+        if (process.argv.includes('--devtools')) {
+          mainWindow.webContents.openDevTools();
+        }
+      mainWindow.show();
+      }
+    }
+  });
   return mainWindow;
 }
 
 // Post MainWindow Load
 app.whenReady().then(async () => {
   await createWindow();
-  if (await settings.getConfig()) {
-    loadDefaultConfigMenuItem = Menu.getApplicationMenu().getMenuItemById('load-default-config');
-    loadDefaultConfigMenuItem.enabled = true;
-    await settings.loadConfigTheme(mainWindow);
-    await settings.loadConfigDefaultDir(mainWindow);
-  }
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       await createWindow()
     } else {
-      await settings.loadConfigDefaultDir(mainWindow);
+      if (mainWindow && !mainWindow.isDestroyed())  {
+        if (mainWindow.webContents.isLoading()) {
+          mainWindow.webContents.once('did-finish-load', applySettings);
+        } else {
+          await applySettings();
+        }
+      }
     }
   });
   ipcMain.on('open-external-link', (event, url) => {
