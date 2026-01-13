@@ -30,8 +30,9 @@ api.receive('html-content', (htmlContent) => {
   while (viewerDiv.firstChild) {
     viewerDiv.removeChild(viewerDiv.firstChild);
   }
-  if (htmlContentCallCount)
+  if (htmlContentCallCount) {
     viewerDiv.removeEventListener('click', linkClick);
+  }
   viewerDiv.addEventListener('click', linkClick);
   viewerDiv.appendChild(contentDiv);
   htmlContentCallCount++;
@@ -42,7 +43,7 @@ api.receive('theme-update', (theme) => {
 });
 
 // Function Definitions
-function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDirectoryPath, isRoot = true) {
+function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDirectoryPath) {
   if (!dirContent) return;
   // Render Folders
   if (dirContent.folders && dirContent.folders.length > 0) {
@@ -64,7 +65,6 @@ function renderDirectoryAndFiles(dirContent, parentElement, currentPath, rootDir
       parentElement.appendChild(folderDiv);
     });
   }
-
   // Render Files
   if (dirContent.files && dirContent.files.length > 0) {
     dirContent.files.forEach(file => {

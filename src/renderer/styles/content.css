@@ -26,10 +26,12 @@
 
 .html-content ul {
     margin: 0.5% 5%;
+    text-align: justify;
 }
 
 .html-content ol {
     margin: 0.5% 5%;
+    text-align: justify;
 }
 
 .html-content pre {

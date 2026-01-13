@@ -33,8 +33,6 @@ body {
     color: var(--text);
     margin: 0px 5px;
     overflow: hidden;
-    /* width: 100vw; */
-
 }
 
 .window {
@@ -49,14 +47,11 @@ body {
     font-size: 0.75em;
     overflow-y: auto;
     overflow-x: hidden;
-    /*border-right: 1px solid var(--accent);*/
-    /*background-color: #00bbf9;*/
 }
 
 #Viewer {
     width: 75%;
     overflow-y: scroll;
-    /*background-color: #9b5de5;*/
 }
 
 .status-bar {
@@ -69,7 +64,6 @@ body {
     align-items: center;
     font-size: 0.75em;
     border-top: 1px solid var(--accent);
-    /*background-color: #f15bb5;*/
 }
 
 #Status {
